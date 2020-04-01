@@ -1,0 +1,9 @@
+ {
+    "id": 1,
+    "expectedAns": "Hello Bei-Bei!",
+    "level-name": "Tutorial Level 1",
+    "Bei-Bei-Text-SizeX": 36,
+    "Bei-Bei-Text-SizeY": 36,
+    "Bei-Bei-Text-Content-1": "Hi! I'm Bei-Bei!\nToday, I'm going to teach you\nhow to program in Python!",
+    "Bei-Bei-Text-Content-2": "\nTo start, let's learn how output works!\nType: print(Hello Bei-Bei!)"
+}
