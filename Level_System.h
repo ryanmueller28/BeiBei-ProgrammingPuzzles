@@ -65,7 +65,15 @@ private:
 	//display if the program executed the right code or not
 	sf::Text afterCheck;
 
+	int levelNum = 1;
+
+	std::string setLevelName(int levelNum);
+
+	void setBeiText();
+
 	void checkAns();
+
+	void clearWrite();
 };
 
 
@@ -79,6 +87,8 @@ int Level_System::Run(sf::RenderWindow &App) {
 	bool Running = true;
 	sf::Event event;
 	float offsetCount = 24;
+
+	setBeiText();
 
 	mainFont.loadFromFile("capAssets/Fonts/_bitmap_font____romulus_by_pix3m-d6aokem.ttf");
 
@@ -148,6 +158,7 @@ int Level_System::Run(sf::RenderWindow &App) {
 		while (App.pollEvent(event)) {
 
 			if (event.key.code == sf::Keyboard::Escape) {
+				clearWrite();
 				return (0);
 				break;
 			}
@@ -185,8 +196,8 @@ int Level_System::Run(sf::RenderWindow &App) {
 					writeFile.close();
 					execCode(cPlayerString);
 					checkAns();
-
 				}
+				setBeiText();
 			}
 
 
@@ -197,6 +208,8 @@ int Level_System::Run(sf::RenderWindow &App) {
 			*
 			*/
 			if (event.type == sf::Event::TextEntered) {
+				afterCheck.setString("");
+				resultText.setString("");
 				if (event.text.unicode < 128) {
 					psstring = Player_Text.getString();
 					if (event.text.unicode == 32) //spacebar
@@ -225,7 +238,7 @@ int Level_System::Run(sf::RenderWindow &App) {
 						}
 					}
 
-					//everything else	
+					//everything else
 					else
 					{
 						psstring += static_cast<char>(event.text.unicode);
@@ -243,7 +256,7 @@ int Level_System::Run(sf::RenderWindow &App) {
 		App.draw(BeiBei);
 		App.draw(compScreen);
 		App.draw(consoleIn);
-
+		App.draw(BeiBei_Text);
 		App.draw(execButton);
 		App.draw(submitButton);
 		App.draw(Player_Text);
@@ -261,6 +274,7 @@ int Level_System::Run(sf::RenderWindow &App) {
 		App.draw(afterCheck);
 		App.display();
 	}
+
 	return -1;
 
 }
@@ -299,7 +313,7 @@ sys.stderr = catchOutErr\n\
 
 
 		PyRun_SimpleString(stdOutErr.c_str());
-//#pragma warning(suppress : 4996)
+#pragma warning(suppress : 4996)
 		FILE* readFile = fopen("write.py", "r");
 
 		PyObject *catcher = PyObject_GetAttrString(main, "catchOutErr"); //get our catchOutErr created above
@@ -327,15 +341,7 @@ sys.stderr = catchOutErr\n\
 		ioMod = PyImport_ImportModule("io");
 		openedFile = PyObject_CallMethod(ioMod, "open", "ss", "store.txt", "wb");
 
-		//it is equivalent to python code : str(Object)
-		PyObject* objectsRepresentation = PyObject_Str(result);
-		PyObject* encoded = PyUnicode_AsEncodedString(objectsRepresentation, "utf-8", "strict");
 
-		//convert Python String Object to C++ char*
-		const char* capChar = PyBytes_AS_STRING(encoded);
-
-		
-		std::string writeString(capChar);
 
 
 		PyObject_CallMethod(openedFile, "write", "y", printCheck);
@@ -371,23 +377,74 @@ sys.stderr = catchOutErr\n\
 		* ex: 2 + 7 returns 9 as a string value
 		* Returns 'None' if a Python function such as print('string') is called.
 		*/
-		std::string s1 = sfResString.toAnsiString(std::locale());
-		std::cout << "\nresString typeid is: " << typeid(writeString).name() << std::endl;
-		std::cout << "resString data stored is : " << writeString.data() << std::endl;
-		std::cout << writeString << std::endl;
+		//std::string s1 = sfResString.toAnsiString(std::locale());
+		//std::cout << "\nresString typeid is: " << typeid(writeString).name() << std::endl;
+		//std::cout << "resString data stored is : " << writeString.data() << std::endl;
+		//std::cout << writeString << std::endl;
 		//std::cout << "sfResString typeid is: " << typeid(sfResString).name() << std::endl;
 		//std::cout << "data stored in sfResString is: " << s1.data() << std::endl;
 
 
 	}
 
+	Player_Text.setString("");
 	Py_Finalize();
 }
 
+std::string Level_System::setLevelName(int levelNum)
+{
+	std::string name = std::to_string(levelNum);
+	name += ".json";
+
+	return name;	
+}
+
+void Level_System::setBeiText()
+{
+	setLevelName(levelNum);
+
+	std::string levelName = setLevelName(levelNum);
+
+
+	std::ifstream jIn("jsonFiles/" + levelName);
+
+	json textIn;
+
+	jIn >> textIn;
+
+	try{
+
+		std::string tempText;
+		if(textIn.find("Bei-Bei-Text-Content") != textIn.end())
+		{
+			tempText = textIn.at("Bei-Bei-Text-Content");
+			BeiBei_Text.setString(tempText);
+		}
+	}		
+	catch(std::exception &e)
+		{
+			std::cerr << e.what() << std::endl;
+		}
+
+		BeiBei_Text.setFont(mainFont);
+		BeiBei_Text.setCharacterSize(24);
+		BeiBei_Text.setFillColor(sf::Color::Black);
+		BeiBei_Text.setPosition({ 1200, 100 });
+}
 
 void Level_System::checkAns()
 {
-	std::ifstream jIn("test.json");
+
+	/**
+	 * Below: set the level name based on the current level number
+	 * then read in that [levelNumber].json
+	 * then get the expected output from that
+	 * */
+
+	std::string levelName = setLevelName(levelNum);
+
+	//formatting grabs from the "jsonFiles" folder
+	std::ifstream jIn("jsonFiles/" + levelName);
 
 	json jSoIn;
 
@@ -433,11 +490,26 @@ void Level_System::checkAns()
 	if (expectedComp == finalComp)
 	{
 		std::cout << "The two strings are equal" << std::endl;
-		afterCheck.setString("That code was right!");
+		afterCheck.setString("That code was right!\nPress any key to move to the next level");
+		levelNum++;
+		clearWrite();
 	}
 	else {
 		std::cout << "The two strings are not equal" << std::endl;
 		afterCheck.setString("That code is not quite right. Try again");
 	}
 
+}
+
+
+//function to clear write.py when the level screen is exited or a new level opens
+
+void Level_System::clearWrite()
+{
+	/**
+	 * if we're closing, re-open write.py
+	* clear it
+	 * */
+	writeFile.open("write.py", std::ofstream::out | std::ofstream::trunc);
+	writeFile.close();
 }

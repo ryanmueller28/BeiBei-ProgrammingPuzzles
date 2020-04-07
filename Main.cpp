@@ -23,7 +23,7 @@ int main()
 {
 	using namespace std;
 
-	sf::RenderWindow app(sf::VideoMode(1920, 1080), "Panda's Puzzles", sf::Style::Fullscreen);
+	sf::RenderWindow app(sf::VideoMode(1920, 1080), "Panda's Puzzles", sf::Style::Resize);
 	std::vector<cScreen*> Screens;
 	int screen = 0;
 

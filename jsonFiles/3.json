@@ -1,0 +1,4 @@
+{
+    "expectedAns": "12.56",
+    "Bei-Bei-Text-Content": "Basic math is great! But let's learn some variables\nIn programming, a variable is a piece of data\nstored in memory to use later.\nLet's calcuate and print the area of a circle with a radius of 2.\nThe formula for calculating area is:\n\npi (3.14 in this case) times radius squared \n(or radius times radius)\nIn Python programming, variables are declared with:\na name followed by the equals sign, '=' followed by the variable's\n value.You will use the Asterisk '*' to multiply.\n"
+}
